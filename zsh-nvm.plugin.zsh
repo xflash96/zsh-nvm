@@ -50,6 +50,12 @@ _zsh_nvm_load() {
 
   # Wrap nvm in our own function
   nvm() {
+    # Install nvm if it isn't already installed
+    if NVM_LAZY_INSTALL && [[ ! -f "$NVM_DIR/nvm.sh" ]]; then
+        _zsh_nvm_install
+        [ -f "$NVM_DIR/nvm.sh"] && _zsh_nvm_init
+    fi
+
     case $1 in
       'upgrade')
         _zsh_nvm_upgrade
@@ -204,24 +210,23 @@ _zsh_nvm_install_wrapper() {
   esac
 }
 
+_zsh_nvm_init() {
+  # Load it
+  [[ "$NVM_LAZY_LOAD" == true ]] && _zsh_nvm_lazy_load || _zsh_nvm_load
+
+  # Enable completion
+  [[ "$NVM_COMPLETION" == true ]] && _zsh_nvm_completion
+
+  # Auto use nvm on chpwd
+  [[ "$NVM_AUTO_USE" == true ]] && add-zsh-hook chpwd _zsh_nvm_auto_use && _zsh_nvm_auto_use
+}
+
 # Don't init anything if this is true (debug/testing only)
 if [[ "$ZSH_NVM_NO_LOAD" != true ]]; then
 
-  # Install nvm if it isn't already installed
-  [[ ! -f "$NVM_DIR/nvm.sh" ]] && _zsh_nvm_install
+  [[ ! -f "$NVM_DIR/nvm.sh" ]] && (NVM_LAZY_INSTALL || _zsh_nvm_install)
 
-  # If nvm is installed
-  if [[ -f "$NVM_DIR/nvm.sh" ]]; then
-
-    # Load it
-    [[ "$NVM_LAZY_LOAD" == true ]] && _zsh_nvm_lazy_load || _zsh_nvm_load
-
-    # Enable completion
-    [[ "$NVM_COMPLETION" == true ]] && _zsh_nvm_completion
-    
-    # Auto use nvm on chpwd
-    [[ "$NVM_AUTO_USE" == true ]] && add-zsh-hook chpwd _zsh_nvm_auto_use && _zsh_nvm_auto_use
-  fi
+  [[ -f "$NVM_DIR/nvm.sh" ]] && _zsh_nvm_init
 
 fi
 
