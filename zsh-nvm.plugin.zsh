@@ -1,3 +1,4 @@
+# probably rewrite from https://github.com/ohmyzsh/ohmyzsh/blob/master/plugins/nvm/nvm.plugin.zsh ?
 ZSH_NVM_DIR=${0:a:h}
 
 [[ -z "$NVM_DIR" ]] && export NVM_DIR="$HOME/.nvm"
@@ -51,7 +52,7 @@ _zsh_nvm_load() {
   # Wrap nvm in our own function
   nvm() {
     # Install nvm if it isn't already installed
-    if NVM_LAZY_INSTALL && [[ ! -f "$NVM_DIR/nvm.sh" ]]; then
+    if ${NVM_LAZY_INSTALL:-false} && [[ ! -f "$NVM_DIR/nvm.sh" ]]; then
         _zsh_nvm_install
         [ -f "$NVM_DIR/nvm.sh"] && _zsh_nvm_init
     fi
@@ -224,7 +225,7 @@ _zsh_nvm_init() {
 # Don't init anything if this is true (debug/testing only)
 if [[ "$ZSH_NVM_NO_LOAD" != true ]]; then
 
-  [[ ! -f "$NVM_DIR/nvm.sh" ]] && (NVM_LAZY_INSTALL || _zsh_nvm_install)
+  [[ ! -f "$NVM_DIR/nvm.sh" ]] && (${NVM_LAZY_INSTALL:-false} || _zsh_nvm_install)
 
   [[ -f "$NVM_DIR/nvm.sh" ]] && _zsh_nvm_init
 
